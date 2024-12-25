@@ -1168,7 +1168,7 @@ enum Usage {
 pub fn classify_defs(omodule: &mut Option<Module>, prover_defs: &mut HashSet<VariableId>) {
     if let Some(module) = omodule {
         let mut classifier = HashMap::new();
-        // Start by assuming that all variables occuring in constraint expressions
+        // Start by assuming that all variables occurring in constraint expressions
         // have constraint definitions.
         for expr in &module.exprs {
             let mut constraint_vars = HashMap::new();
