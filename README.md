@@ -92,7 +92,7 @@ an 11th Gen Intel® Core™ i5-1135G7 @ 2.40GHz × 8 unless stated otherwise
 
 |         | `Compile`  | `Prove`         | `Verify` |
 |:--------|:-----------|:----------------|:---------|
-| Vamp-IR | `729.47 s` | Memory Failiure | X        |
+| Vamp-IR | `729.47 s` | Memory Failure | X        |
 | Halo2   | //         | `160.36 s`      | `1.03 s` |
 
 We re-run the with a device that has 128GB of RAM and these are the results:
