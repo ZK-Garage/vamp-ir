@@ -30,7 +30,7 @@ fn bench(pir_file: &str) {
         module,
         &PrimeFieldOps::<Fp>::default(),
         &Config { quiet: false },
-    ); // Failed to compile
+    ).expect("Failed to compile module"); // Added expect for error handling
     println!("* Compiling constraints (3AC)...");
     let inst3 = Instant::now();
     file.write_all(
@@ -39,8 +39,7 @@ fn bench(pir_file: &str) {
             inst3.duration_since(inst2)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
 
     println!("* Synthesizing arithmetic circuit...");
     let inst4 = Instant::now();
@@ -54,12 +53,10 @@ fn bench(pir_file: &str) {
             inst5.duration_since(inst4)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
     println!("* Constraint compilation success!");
 
     // PROOF GENERATION
-
     // Prover POV
     println!("* Soliciting circuit witnesses...");
     let inst6 = Instant::now();
@@ -78,8 +75,7 @@ fn bench(pir_file: &str) {
             inst7.duration_since(inst6)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
 
     // Generating proving key
     println!("* Generating proving key...");
@@ -92,8 +88,7 @@ fn bench(pir_file: &str) {
             inst9.duration_since(inst8)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
 
     // Start proving witnesses
     println!("* Proving knowledge of witnesses...");
@@ -106,8 +101,7 @@ fn bench(pir_file: &str) {
             inst11.duration_since(inst10)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
 
     // PROOF VERIFICATION
     println!("* Generating verifying key...");
@@ -120,8 +114,7 @@ fn bench(pir_file: &str) {
             inst13.duration_since(inst12)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
 
     println!("* Verifying proof validity...");
     let inst14 = Instant::now();
@@ -133,8 +126,7 @@ fn bench(pir_file: &str) {
             inst15.duration_since(inst14)
         )
         .as_bytes(),
-    )
-    .unwrap();
+    ).unwrap();
     if let Ok(()) = verifier_result {
         println!("* Zero-knowledge proof, max_degree: u32 is valid");
     } else {
@@ -150,6 +142,7 @@ fn criterion_benchmark(_c: &mut Criterion) {
 }
 
 criterion_group!(benches, criterion_benchmark);
+
 /*
 criterion_group!{
     name = benches;
@@ -158,4 +151,5 @@ criterion_group!{
     targets = criterion_benchmark
 }
  */
+
 criterion_main!(benches);
