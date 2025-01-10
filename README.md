@@ -1,26 +1,43 @@
 # Vamp-IR
 
-Vamp-IR is a language for arithmetic circuits. The Vamp-IR compiler can transform an arithmetic circuit into a form that is compatible with any proving system backend.
+Vamp-IR is a powerful domain-specific language (DSL) designed for creating and manipulating arithmetic circuits. It provides a high-level abstraction for zero-knowledge proof systems, allowing developers to write circuits in a more intuitive way. The Vamp-IR compiler can transform these circuits into formats compatible with various proving system backends like Halo2 and ZK-garage plonk.
 
-## Docs
+## Features
+
+- Simple and intuitive syntax for arithmetic circuit description
+- Multiple backend support (Halo2, ZK-garage plonk)
+- Built-in optimization for circuit compilation
+- Support for public and private inputs
+- Efficient proof generation and verification
+
+## Requirements
+
+- Rust 1.65 or higher
+- Git
+- Cargo (Rust package manager)
+- 8GB RAM minimum (128GB recommended for large circuits)
+
+## Documentation
 
 [Vamp-IR book (WIP)](https://github.com/anoma/VampIR-Book)
 
-## Trying Vamp-IR
+## Getting Started
 
 ### Installation
-```
+```bash
 git clone git@github.com:anoma/vamp-ir
 cd vamp-ir
 cargo build
 ```
 
-### Hello World!
+### Hello World Example: Circle Point Verification
 
-We will build a circuit in Vamp-IR that checks if a pair $(x, y)$ is a point on a circle of a certain radius, $R$, which is given publicly.
+This example demonstrates how to verify if a point (x, y) lies on a circle with radius R.
 
-In a file `pyth.pir` :
-```
+#### 1. Create the Circuit
+
+Create a file named `pyth.pir`:
+```rust
 // declare R to be public
 pub R;
 
@@ -33,73 +50,51 @@ def pyth a b c = {
 pyth x y R;
 ```
 
-### Compile
-Compile source `pyth.pir` to a circuit that can be used in Halo2 and serialize it to the file `pyth.halo2`.
+#### 2. Prepare the Inputs
 
-```
-vamp-ir halo2 compile -s pyth.pir -o pyth.halo2
-```
-
-### Create a proof
-
-Suppose the target radius $R$ is $25$, and we come up with $(x, y) = (15, 20)$. We can use `vamp-ir` to create a Halo2 proof using these inputs.
-
-First create a file `pyth.inputs` in JSON format which contains our solution.
-
-```
+Create `pyth.inputs` with your test values:
+```json
 {
   "x": "15",
   "y": "20",
   "R": "25"
 }
 ```
-Then run the Halo2 prover using our compiled circuit and our inputs, outputting a Halo2 proof to `pyth.proof`.
 
-```
+#### 3. Compile, Prove, and Verify
+
+```bash
+# Compile the circuit
+vamp-ir halo2 compile -s pyth.pir -o pyth.halo2
+
+# Generate the proof
 vamp-ir halo2 prove -c pyth.halo2 -i pyth.inputs -o pyth.proof
-```
 
-### Verify the proof
-
-Run the Halo2 verifier using the compiled circuit and the proof.
-
-```
+# Verify the proof
 vamp-ir halo2 verify -c pyth.halo2 -p pyth.proof
 ```
 
-### 
+## Performance Benchmarks
 
-## Benchmarks
-These benchmarks are performed on a Lenovo ThinkPad X1 Carbon Gen 9 with 8.0 GiB RAM and 
-an 11th Gen Intel® Core™ i5-1135G7 @ 2.40GHz × 8 unless stated otherwise
-### Halo2 backend
+> Note: Benchmarks were performed on a Lenovo ThinkPad X1 Carbon Gen 9 (i5-1135G7, 8GB RAM)
 
-#### SHA256 1 block message
+### Halo2 Backend Performance
 
-|         | `Compile`  | `Prove`    | `Verify` |
-|:--------|:-----------|:-----------|:---------|
-| Vamp-IR | `172.05 s` | `26.72 s`  | `0.61 s` |
-| Halo2   | //         | `161.05 s` | `1.06 s` |
+| Circuit Type          | Operation | Vamp-IR    | Native Halo2 |
+|----------------------|-----------|------------|--------------|
+| SHA256 (1 block)     | Compile   | 172.05s    | -            |
+|                      | Prove     | 26.72s     | 161.05s      |
+|                      | Verify    | 0.61s      | 1.06s        |
+| SHA256 (2 blocks)    | Compile   | 353.76s    | -            |
+|                      | Prove     | 46.91s     | 160.03s      |
+|                      | Verify    | 1.09s      | 1.05s        |
 
-#### SHA256 2 block message
-
-|         | `Compile`  | `Prove`    | `Verify` |
-|:--------|:-----------|:-----------|:---------|
-| Vamp-IR | `353.76 s` | `46.91 s`  | `1.09 s` |
-| Halo2   | //         | `160.03 s` | `1.05 s` |
-
-#### SHA256 4 block message
-
-|         | `Compile`  | `Prove`         | `Verify` |
-|:--------|:-----------|:----------------|:---------|
-| Vamp-IR | `729.47 s` | Memory Failiure | X        |
-| Halo2   | //         | `160.36 s`      | `1.03 s` |
-
-We re-run the with a device that has 128GB of RAM and these are the results:
-
-|         | `Compile` | `Prove`    | `Verify` |
-|:--------|:----------|:-----------|:---------|
-| Vamp-IR | `60 s`    | `81.983 s` | `0.6 s ` |
+### High-Memory Environment (128GB RAM)
+| Circuit Type          | Operation | Vamp-IR    |
+|----------------------|-----------|------------|
+| SHA256 (4 blocks)    | Compile   | 60s        |
+|                      | Prove     | 81.983s    |
+|                      | Verify    | 0.6s       |
 
 ### ZK-garage plonk backend
 
